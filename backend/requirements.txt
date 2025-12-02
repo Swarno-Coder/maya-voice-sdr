@@ -2,10 +2,8 @@
 # Python 3.10+ required
 
 # LiveKit Agent Framework
-livekit-agents>=1.0.0
-livekit-plugins-silero>=1.0.0
-livekit-plugins-noise-cancellation>=1.0.0
-livekit>=1.0.0
+livekit-agents[silero,turn-detector]~=1.2
+livekit-plugins-noise-cancellation~=0.2
 
 # Environment Management
 python-dotenv>=1.0.0

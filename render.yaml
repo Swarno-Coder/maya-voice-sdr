@@ -4,11 +4,11 @@
 services:
   - type: web
     name: maya-voice-sdr-backend
-    env: python
+    runtime: python
     region: oregon
     plan: free
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && python agent.py download-files
     startCommand: python agent.py start
     envVars:
       - key: LIVEKIT_API_KEY
@@ -16,6 +16,12 @@ services:
       - key: LIVEKIT_API_SECRET
         sync: false
       - key: LIVEKIT_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ASSEMBLYAI_API_KEY
+        sync: false
+      - key: CARTESIA_API_KEY
         sync: false
       - key: PYTHON_VERSION
         value: 3.11.0
