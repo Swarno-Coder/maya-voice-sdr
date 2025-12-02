@@ -1,0 +1,21 @@
+# Render Blueprint for Maya Voice SDR Backend
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: maya-voice-sdr-backend
+    env: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python agent.py start
+    envVars:
+      - key: LIVEKIT_API_KEY
+        sync: false
+      - key: LIVEKIT_API_SECRET
+        sync: false
+      - key: LIVEKIT_URL
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.0
