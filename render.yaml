@@ -8,7 +8,11 @@ services:
     region: oregon
     plan: free
     rootDir: backend
-    buildCommand: pip install -r requirements.txt && python agent.py download-files
+    buildCommand: >
+      pip install -r requirements.txt &&
+      python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')" &&
+      python ingest.py &&
+      python agent.py download-files
     startCommand: python agent.py start
     envVars:
       - key: LIVEKIT_API_KEY
