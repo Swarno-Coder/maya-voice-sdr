@@ -130,7 +130,7 @@ export const SessionView = ({
             onDisconnect={startDisconnectTransition}
             onChatOpenChange={setChatOpen}
           />
-          <p className="mt-2 text-center text-xs text-muted-foreground/70">
+          <p className="text-muted-foreground/70 mt-2 text-center text-xs">
             Made by Swarnodip Nag with ❤️
           </p>
         </div>

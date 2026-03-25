@@ -1,16 +1,16 @@
-import { Button } from '@/components/livekit/button';
 import { GradientBackground } from '@/components/app/gradient-background';
+import { Button } from '@/components/livekit/button';
 
 function MayaAvatar() {
   return (
     <div className="relative mb-8">
       {/* Outer glow ring */}
-      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/40 via-accent/30 to-primary/40 blur-xl scale-110 animate-pulse" />
-      
+      <div className="from-primary/40 via-accent/30 to-primary/40 absolute inset-0 scale-110 animate-pulse rounded-full bg-gradient-to-br blur-xl" />
+
       {/* Avatar container */}
-      <div className="relative glass-card rounded-full p-1 glow-primary">
-        <div className="relative size-28 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-[2px]">
-          <div className="flex size-full items-center justify-center rounded-full bg-background">
+      <div className="glass-card glow-primary relative rounded-full p-1">
+        <div className="from-primary via-accent to-primary relative size-28 rounded-full bg-gradient-to-br p-[2px]">
+          <div className="bg-background flex size-full items-center justify-center rounded-full">
             {/* Voice wave icon */}
             <svg
               width="48"
@@ -34,8 +34,8 @@ function MayaAvatar() {
 
 function FeatureTag({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary dark:bg-primary/20">
-      <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+    <span className="bg-primary/10 text-primary dark:bg-primary/20 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium">
+      <span className="bg-primary size-1.5 animate-pulse rounded-full" />
       {children}
     </span>
   );
@@ -69,17 +69,17 @@ export const WelcomeView = ({
         <MayaAvatar />
 
         {/* Title */}
-        <h1 className="mb-3 bg-gradient-to-br from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-5xl lg:text-6xl">
+        <h1 className="from-foreground via-foreground/90 to-foreground/70 mb-3 bg-gradient-to-br bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-5xl lg:text-6xl">
           Meet Maya
         </h1>
-        
-        <p className="mb-2 text-lg font-medium text-primary md:text-xl">
+
+        <p className="text-primary mb-2 text-lg font-medium md:text-xl">
           Your AI Sales Development Representative
         </p>
 
-        <p className="mb-8 max-w-md text-muted-foreground leading-relaxed md:max-w-lg">
-          Experience the future of B2B sales. Maya helps you explore cloud solutions, 
-          discuss scalability, and discover how we can solve your business challenges.
+        <p className="text-muted-foreground mb-8 max-w-md leading-relaxed md:max-w-lg">
+          Experience the future of B2B sales. Maya helps you explore cloud solutions, discuss
+          scalability, and discover how we can solve your business challenges.
         </p>
 
         {/* CTA Button */}
@@ -87,20 +87,20 @@ export const WelcomeView = ({
           variant="primary"
           size="lg"
           onClick={onStartCall}
-          className="group relative min-w-64 overflow-hidden bg-gradient-to-r from-primary via-primary to-accent px-8 py-6 text-base font-semibold tracking-wide pulse-glow transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
+          className="group from-primary via-primary to-accent pulse-glow relative min-w-64 overflow-hidden bg-gradient-to-r px-8 py-6 text-base font-semibold tracking-wide transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
         >
           <span className="relative z-10 flex items-center gap-2">
-            <svg 
-              className="size-5 transition-transform duration-300 group-hover:scale-110" 
-              fill="none" 
-              viewBox="0 0 24 24" 
+            <svg
+              className="size-5 transition-transform duration-300 group-hover:scale-110"
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
               />
             </svg>
             {startButtonText}
@@ -109,22 +109,34 @@ export const WelcomeView = ({
 
         {/* Trust indicators */}
         <div className="mt-10 flex flex-col items-center gap-4">
-          <div className="flex items-center gap-6 text-xs text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-6 text-xs">
             <span className="flex items-center gap-1.5">
               <svg className="size-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
               </svg>
               No credit card required
             </span>
             <span className="flex items-center gap-1.5">
               <svg className="size-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
               </svg>
               Instant connection
             </span>
             <span className="flex items-center gap-1.5">
               <svg className="size-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
               </svg>
               Enterprise-ready
             </span>
@@ -134,12 +146,10 @@ export const WelcomeView = ({
 
       {/* Footer */}
       <div className="fixed bottom-5 left-0 z-10 flex w-full flex-col items-center justify-center gap-2 px-4">
-        <p className="glass-card rounded-full px-4 py-2 text-center text-xs text-muted-foreground leading-5 md:text-sm">
+        <p className="glass-card text-muted-foreground rounded-full px-4 py-2 text-center text-xs leading-5 md:text-sm">
           Powered by advanced AI • Your conversation is private and secure
         </p>
-        <p className="text-xs text-muted-foreground/70">
-          Made by Swarnodip Nag with ❤️
-        </p>
+        <p className="text-muted-foreground/70 text-xs">Made by Swarnodip Nag with ❤️</p>
       </div>
     </div>
   );
