@@ -2,7 +2,7 @@
 # https://render.com/docs/blueprint-spec
 
 services:
-  - type: web
+  - type: worker
     name: maya-voice-sdr-backend
     runtime: python
     region: oregon

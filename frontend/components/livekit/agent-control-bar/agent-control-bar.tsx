@@ -81,10 +81,7 @@ export function AgentControlBar({
   return (
     <div
       aria-label="Voice assistant controls"
-      className={cn(
-        'glass-card flex flex-col rounded-[31px] p-3 shadow-lg',
-        className
-      )}
+      className={cn('glass-card flex flex-col rounded-[31px] p-3 shadow-lg', className)}
       {...props}
     >
       {/* Chat Input */}

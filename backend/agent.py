@@ -56,7 +56,11 @@ Protect privacy. Do not ask for sensitive personal information beyond what is ne
 """
 
 import logging
+import os
+import asyncio
+from threading import Thread
 from dotenv import load_dotenv
+from aiohttp import web
 from livekit.agents import (
     Agent,
     AgentSession,
@@ -159,6 +163,31 @@ class MayaAgent(Agent):
 server = AgentServer()
 
 
+def _start_healthcheck_server() -> None:
+    """Expose a tiny HTTP healthcheck so Render detects an open port."""
+
+    async def handle_health(_: web.Request) -> web.Response:
+        return web.Response(text="ok")
+
+    async def runner() -> None:
+        app = web.Application()
+        app.add_routes([web.get("/health", handle_health)])
+
+        port = int(os.getenv("PORT", "8000"))
+        app_runner = web.AppRunner(app)
+        await app_runner.setup()
+        site = web.TCPSite(app_runner, "0.0.0.0", port)
+        await site.start()
+
+        # Keep running forever
+        await asyncio.Event().wait()
+
+    def _run_server() -> None:
+        asyncio.run(runner())
+
+    Thread(target=_run_server, daemon=True).start()
+
+
 def prewarm(proc: JobProcess):
     """Pre-load heavy models during process warm-up."""
     proc.userdata["vad"] = silero.VAD.load()
@@ -210,4 +239,5 @@ async def entrypoint(ctx: JobContext):
 
 
 if __name__ == "__main__":
+    _start_healthcheck_server()
     cli.run_app(server)
