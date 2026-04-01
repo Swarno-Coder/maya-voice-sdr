@@ -322,6 +322,7 @@ Maya uses the following AI services (configurable in `agent.py`):
    - **Root Directory:** `backend`
    - **Build Command:** `pip install -r requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')" && python ingest.py && python agent.py download-files`
    - **Start Command:** `python agent.py start`
+   - **Health Check Path:** `/health`
 4. Add environment variables
 5. Deploy!
 
