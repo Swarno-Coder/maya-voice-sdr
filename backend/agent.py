@@ -55,12 +55,11 @@ Do not make promises you cannot keep. Be honest about what the product can and c
 Protect privacy. Do not ask for sensitive personal information beyond what is needed for scheduling.
 """
 
+import http.server
 import logging
 import os
-import asyncio
 from threading import Thread
 from dotenv import load_dotenv
-from aiohttp import web
 from livekit.agents import (
     Agent,
     AgentSession,
@@ -164,28 +163,27 @@ server = AgentServer()
 
 
 def _start_healthcheck_server() -> None:
-    """Expose a tiny HTTP healthcheck so Render detects an open port."""
+    """Expose a tiny HTTP healthcheck so Render detects an open port.
 
-    async def handle_health(_: web.Request) -> web.Response:
-        return web.Response(text="ok")
+    Uses stdlib HTTPServer which binds the socket synchronously in __init__,
+    so the port is open before cli.run_app() is called and Render's port
+    scanner can find it immediately.
+    """
 
-    async def runner() -> None:
-        app = web.Application()
-        app.add_routes([web.get("/health", handle_health)])
+    class _Handler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):  # noqa: N802
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"ok")
 
-        port = int(os.getenv("PORT", "8000"))
-        app_runner = web.AppRunner(app)
-        await app_runner.setup()
-        site = web.TCPSite(app_runner, "0.0.0.0", port)
-        await site.start()
+        def log_message(self, *_args) -> None:  # silence access logs
+            pass
 
-        # Keep running forever
-        await asyncio.Event().wait()
-
-    def _run_server() -> None:
-        asyncio.run(runner())
-
-    Thread(target=_run_server, daemon=True).start()
+    port = int(os.getenv("PORT", "8000"))
+    # HTTPServer binds the port synchronously here, before serve_forever()
+    httpd = http.server.HTTPServer(("0.0.0.0", port), _Handler)
+    Thread(target=httpd.serve_forever, daemon=True).start()
+    logger.info("Health-check server listening on port %d", port)
 
 
 def prewarm(proc: JobProcess):
