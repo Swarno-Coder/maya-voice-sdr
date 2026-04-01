@@ -2,7 +2,7 @@
 # https://render.com/docs/blueprint-spec
 
 services:
-  - type: worker
+  - type: web
     name: maya-voice-sdr-backend
     runtime: python
     region: oregon
@@ -14,6 +14,7 @@ services:
       python ingest.py &&
       python agent.py download-files
     startCommand: python agent.py start
+    healthCheckPath: /health
     envVars:
       - key: LIVEKIT_API_KEY
         sync: false
