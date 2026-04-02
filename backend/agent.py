@@ -173,7 +173,8 @@ def _start_healthcheck_server() -> None:
         app = web.Application()
         app.add_routes([web.get("/health", handle_health)])
 
-        port = int(os.getenv("PORT", "8000"))
+        # Render assigns PORT for web services; fallback to 10000 for local parity.
+        port = int(os.getenv("PORT", "10000"))
         app_runner = web.AppRunner(app)
         await app_runner.setup()
         site = web.TCPSite(app_runner, "0.0.0.0", port)
