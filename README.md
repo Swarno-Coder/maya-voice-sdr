@@ -318,9 +318,10 @@ Maya uses the following AI services (configurable in `agent.py`):
 ### Backend service (worker)
 
 - Config file: `backend/railway.toml`
+- Python version pin: `backend/.python-version` (`3.11`)
 - Build command:
-  `pip install -r requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')" && python ingest.py && python agent.py download-files`
-- Start command: `python -u agent.py start`
+  `python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt && python3 -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')" && python3 ingest.py && python3 agent.py download-files`
+- Start command: `python3 -u agent.py start`
 - Required environment variables:
   - `LIVEKIT_API_KEY`
   - `LIVEKIT_API_SECRET`
