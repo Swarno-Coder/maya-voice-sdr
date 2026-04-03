@@ -93,9 +93,11 @@ maya-voice-sdr/
 │   ├── app/                     # App router pages
 │   ├── components/              # React components
 │   ├── styles/                  # Global styles
-│   └── package.json             # Node dependencies
+│   ├── package.json             # Node dependencies
+│   └── railway.toml             # Railway config for frontend service
 │
-├── render.yaml                  # Render deployment config
+├── backend/railway.toml         # Railway config for backend worker
+├── render.yaml                  # Legacy Render deployment config
 ├── .gitignore
 ├── LICENSE
 └── README.md
@@ -304,26 +306,49 @@ Maya uses the following AI services (configurable in `agent.py`):
 
 ---
 
-## 🌐 Deployment
+## 🌐 Deployment (Railway)
 
-### Frontend → Vercel
+### One-time setup
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Swarno-Coder/maya-voice-sdr&env=LIVEKIT_API_KEY,LIVEKIT_API_SECRET,LIVEKIT_URL)
+1. In Railway, create two services from this repository:
+   - `maya-voice-sdr-frontend` with root directory `frontend`
+   - `maya-voice-sdr-backend` with root directory `backend`
+2. Railway automatically picks up service settings from each `railway.toml` file.
 
-1. Import repository to Vercel
-2. Set environment variables
-3. Deploy!
+### Backend service (worker)
 
-### Backend → Render
+- Config file: `backend/railway.toml`
+- Build command:
+  `pip install -r requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')" && python ingest.py && python agent.py download-files`
+- Start command: `python -u agent.py start`
+- Required environment variables:
+  - `LIVEKIT_API_KEY`
+  - `LIVEKIT_API_SECRET`
+  - `LIVEKIT_URL`
+  - `GEMINI_API_KEY`
+  - `ASSEMBLYAI_API_KEY`
+  - `CARTESIA_API_KEY`
 
-1. Create new **Web Service** on Render
-2. Connect your GitHub repository
-3. Configure:
-   - **Root Directory:** `backend`
-   - **Build Command:** `pip install -r requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')" && python ingest.py && python agent.py download-files`
-   - **Start Command:** `python agent.py start`
-4. Add environment variables
-5. Deploy!
+### Frontend service (web)
+
+- Config file: `frontend/railway.toml`
+- Build command: `pnpm install --frozen-lockfile && pnpm build`
+- Start command: `pnpm start`
+- Required environment variables:
+  - `LIVEKIT_API_KEY`
+  - `LIVEKIT_API_SECRET`
+  - `LIVEKIT_URL`
+- Optional environment variables:
+  - `NEXT_PUBLIC_APP_CONFIG_ENDPOINT`
+  - `SANDBOX_ID`
+  - `NEXT_PUBLIC_CONN_DETAILS_ENDPOINT` (leave empty to use the same frontend service route at `/api/connection-details`)
+
+### Verify frontend-backend room join
+
+1. Deploy backend first and confirm logs show `RAG engine ready`.
+2. Deploy frontend and open the Railway frontend URL.
+3. Click the call start button and confirm backend logs show `Starting RTC session` for the room.
+4. Speak into the call and confirm STT/LLM/TTS flow appears in backend logs.
 
 ---
 
