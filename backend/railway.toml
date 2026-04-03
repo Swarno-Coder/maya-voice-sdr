@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "python3 -m pip3 install --upgrade pip3 && python3 -m pip3 install -r requirements.txt && python3 -c \"from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')\" && python3 ingest.py && python3 agent.py download-files"
+buildCommand = "pip3 install --upgrade pip && pip3 install -r requirements.txt && python3 -c \"from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')\" && python3 ingest.py && python3 agent.py download-files"
 
 [deploy]
 startCommand = "python3 -u agent.py start"
