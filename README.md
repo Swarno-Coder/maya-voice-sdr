@@ -316,14 +316,16 @@ Maya uses the following AI services (configurable in `agent.py`):
 
 ### Backend → Render
 
-1. Create new **Web Service** on Render
-2. Connect your GitHub repository
-3. Configure:
-   - **Root Directory:** `backend`
-   - **Build Command:** `pip install -r requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')" && python ingest.py && python agent.py download-files`
-   - **Start Command:** `python agent.py start`
-4. Add environment variables
-5. Deploy!
+1. Create a new **Blueprint** deploy on Render (recommended), so `render.yaml` is applied automatically.
+2. If your Render service is sourced from the repo root, use `/render.yaml`.
+3. If your Render service is sourced from `backend/`, use `backend/render.yaml`.
+4. Ensure all required environment variables are set in Render dashboard.
+5. Deploy.
+
+Notes:
+- The backend now exposes `GET /health` and binds to `0.0.0.0:$PORT` (Render-compatible).
+- If you create a service manually as a **Worker**, Render will not do port detection.
+- If you create a service manually as a **Web Service**, Render requires an open port and health endpoint.
 
 ---
 
