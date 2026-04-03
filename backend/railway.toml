@@ -1,8 +1,0 @@
-[build]
-builder = "RAILPACK"
-buildCommand = "pip3 install --upgrade pip && pip3 install -r requirements.txt && python3 -c \"from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')\" && python3 ingest.py && python3 agent.py download-files"
-
-[deploy]
-startCommand = "python3 -u agent.py start"
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 10
