@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     }
 
     // Parse agent configuration from request body
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const agentName: string = body?.room_config?.agents?.[0]?.agent_name;
 
     // Generate participant token
@@ -60,6 +60,10 @@ export async function POST(req: Request) {
       console.error(error);
       return new NextResponse(error.message, { status: 500 });
     }
+
+    return new NextResponse('Unexpected error while generating connection details', {
+      status: 500,
+    });
   }
 }
 

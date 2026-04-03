@@ -5,6 +5,59 @@ import { TokenSource } from 'livekit-client';
 import { SessionProvider, useSession } from '@livekit/components-react';
 import type { AppConfig } from '@/app-config';
 
+type ConnectionDetails = {
+  serverUrl: string;
+  roomName: string;
+  participantName: string;
+  participantToken: string;
+};
+
+const CONNECTION_DETAILS_ENDPOINT = '/api/connection-details';
+
+function isConnectionDetails(value: unknown): value is ConnectionDetails {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const payload = value as Record<string, unknown>;
+  return (
+    typeof payload.serverUrl === 'string' &&
+    typeof payload.roomName === 'string' &&
+    typeof payload.participantName === 'string' &&
+    typeof payload.participantToken === 'string'
+  );
+}
+
+async function fetchConnectionDetails(endpoint: string, appConfig: AppConfig): Promise<ConnectionDetails> {
+  const url = new URL(endpoint, window.location.origin);
+  const response = await fetch(url.toString(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Sandbox-Id': appConfig.sandboxId ?? '',
+    },
+    body: JSON.stringify({
+      room_config: appConfig.agentName
+        ? {
+            agents: [{ agent_name: appConfig.agentName }],
+          }
+        : undefined,
+    }),
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`Connection details request failed (${response.status}): ${details}`);
+  }
+
+  const payload: unknown = await response.json();
+  if (!isConnectionDetails(payload)) {
+    throw new Error('Invalid connection details payload');
+  }
+
+  return payload;
+}
+
 interface ConnectionContextType {
   isConnectionActive: boolean;
   connect: (startSession?: boolean) => void;
@@ -34,36 +87,25 @@ interface ConnectionProviderProps {
 
 export function ConnectionProvider({ appConfig, children }: ConnectionProviderProps) {
   const [isConnectionActive, setIsConnectionActive] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const tokenSource = useMemo(() => {
-    if (typeof process.env.NEXT_PUBLIC_CONN_DETAILS_ENDPOINT === 'string') {
-      return TokenSource.custom(async () => {
-        const url = new URL(process.env.NEXT_PUBLIC_CONN_DETAILS_ENDPOINT!, window.location.origin);
+    const customConnectionEndpoint = process.env.NEXT_PUBLIC_CONN_DETAILS_ENDPOINT?.trim();
 
+    return TokenSource.custom(async () => {
+      if (customConnectionEndpoint) {
         try {
-          const res = await fetch(url.toString(), {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Sandbox-Id': appConfig.sandboxId ?? '',
-            },
-            body: JSON.stringify({
-              room_config: appConfig.agentName
-                ? {
-                    agents: [{ agent_name: appConfig.agentName }],
-                  }
-                : undefined,
-            }),
-          });
-          return await res.json();
+          return await fetchConnectionDetails(customConnectionEndpoint, appConfig);
         } catch (error) {
-          console.error('Error fetching connection details:', error);
-          throw new Error('Error fetching connection details!');
+          console.error(
+            `Custom connection-details endpoint failed (${customConnectionEndpoint}). Falling back to ${CONNECTION_DETAILS_ENDPOINT}.`,
+            error
+          );
         }
-      });
-    }
+      }
 
-    return TokenSource.endpoint('/api/connection-details');
+      return fetchConnectionDetails(CONNECTION_DETAILS_ENDPOINT, appConfig);
+    });
   }, [appConfig]);
 
   const session = useSession(
@@ -77,17 +119,31 @@ export function ConnectionProvider({ appConfig, children }: ConnectionProviderPr
     return {
       isConnectionActive,
       connect: () => {
+        if (isConnectionActive || isConnecting) {
+          return;
+        }
+
+        setIsConnecting(true);
         setIsConnectionActive(true);
-        startSession();
+
+        Promise.resolve(startSession())
+          .catch((error) => {
+            console.error('Failed to start LiveKit session:', error);
+            setIsConnectionActive(false);
+          })
+          .finally(() => {
+            setIsConnecting(false);
+          });
       },
       startDisconnectTransition: () => {
         setIsConnectionActive(false);
       },
       onDisconnectTransitionComplete: () => {
+        setIsConnecting(false);
         endSession();
       },
     };
-  }, [startSession, endSession, isConnectionActive]);
+  }, [startSession, endSession, isConnectionActive, isConnecting]);
 
   return (
     <SessionProvider session={session}>

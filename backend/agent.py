@@ -56,11 +56,7 @@ Protect privacy. Do not ask for sensitive personal information beyond what is ne
 """
 
 import logging
-import os
-import asyncio
-from threading import Thread
 from dotenv import load_dotenv
-from aiohttp import web
 from livekit.agents import (
     Agent,
     AgentSession,
@@ -163,31 +159,6 @@ class MayaAgent(Agent):
 server = AgentServer()
 
 
-def _start_healthcheck_server() -> None:
-    """Expose a tiny HTTP healthcheck so Render detects an open port."""
-
-    async def handle_health(_: web.Request) -> web.Response:
-        return web.Response(text="ok")
-
-    async def runner() -> None:
-        app = web.Application()
-        app.add_routes([web.get("/health", handle_health)])
-
-        port = int(os.getenv("PORT", "8000"))
-        app_runner = web.AppRunner(app)
-        await app_runner.setup()
-        site = web.TCPSite(app_runner, "0.0.0.0", port)
-        await site.start()
-
-        # Keep running forever
-        await asyncio.Event().wait()
-
-    def _run_server() -> None:
-        asyncio.run(runner())
-
-    Thread(target=_run_server, daemon=True).start()
-
-
 def prewarm(proc: JobProcess):
     """Pre-load heavy models during process warm-up."""
     proc.userdata["vad"] = silero.VAD.load()
@@ -203,6 +174,14 @@ server.setup_fnc = prewarm
 
 @server.rtc_session(agent_name="MAYA")
 async def entrypoint(ctx: JobContext):
+    room_name = getattr(ctx.room, "name", "unknown")
+    participant_identity = getattr(getattr(ctx, "participant", None), "identity", "unknown")
+    logger.info(
+        "Starting RTC session for room '%s' and participant '%s'",
+        room_name,
+        participant_identity,
+    )
+
     # Get the pre-loaded RAG engine
     rag_engine: RAGEngine = ctx.proc.userdata["rag"]
 
@@ -227,17 +206,23 @@ async def entrypoint(ctx: JobContext):
 
     agent = MayaAgent()
 
-    await session.start(
-        agent=agent,
-        room=ctx.room,
-        room_options=room_io.RoomOptions(
-            audio_input=room_io.AudioInputOptions(
-                noise_cancellation=lambda params: noise_cancellation.BVCTelephony() if params.participant.kind == rtc.ParticipantKind.PARTICIPANT_KIND_SIP else noise_cancellation.BVC(),
+    try:
+        await session.start(
+            agent=agent,
+            room=ctx.room,
+            room_options=room_io.RoomOptions(
+                audio_input=room_io.AudioInputOptions(
+                    noise_cancellation=lambda params: noise_cancellation.BVCTelephony() if params.participant.kind == rtc.ParticipantKind.PARTICIPANT_KIND_SIP else noise_cancellation.BVC(),
+                ),
             ),
-        ),
-    )
+        )
+    finally:
+        logger.info(
+            "RTC session finished for room '%s' and participant '%s'",
+            room_name,
+            participant_identity,
+        )
 
 
 if __name__ == "__main__":
-    _start_healthcheck_server()
     cli.run_app(server)

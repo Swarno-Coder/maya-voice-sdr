@@ -1,0 +1,5 @@
+[providers]
+python = true
+
+[deploy]
+startCommand = "python agent.py start"
